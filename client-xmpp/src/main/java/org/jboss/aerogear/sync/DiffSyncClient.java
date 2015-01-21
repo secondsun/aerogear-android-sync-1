@@ -34,8 +34,9 @@ import java.sql.Timestamp;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.UUID;
-import org.jboss.aerogear.android.Callback;
-import org.jboss.aerogear.android.Provider;
+import org.jboss.aerogear.android.core.Callback;
+import org.jboss.aerogear.android.core.Provider;
+
 
 /**
  * A Netty based WebSocket client that is able to handle differential

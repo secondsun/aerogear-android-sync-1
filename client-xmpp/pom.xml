@@ -27,6 +27,7 @@
 
     <artifactId>sync-client-xmpp</artifactId>
     <packaging>aar</packaging>
+    <version>0.0.1-SNAPSHOT</version>
     <name>AeroGear Data Synchronization XMPP Client</name>
 
     <build>

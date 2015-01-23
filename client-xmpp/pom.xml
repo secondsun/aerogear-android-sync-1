@@ -107,6 +107,18 @@
 
         <dependency>
             <groupId>org.jboss.aerogear</groupId>
+            <artifactId>sync-api</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.aerogear</groupId>
+            <artifactId>sync-core</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.jboss.aerogear</groupId>
             <artifactId>sync-client-core</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>

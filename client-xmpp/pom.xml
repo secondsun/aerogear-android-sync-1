@@ -36,7 +36,7 @@
                 <plugin>
                     <groupId>com.simpligility.maven.plugins</groupId>
                     <artifactId>android-maven-plugin</artifactId>
-                    <version>4.1.0</version>
+                    <version>4.1.1</version>
                     <extensions>true</extensions>
                 </plugin>
                 <plugin>
@@ -104,11 +104,6 @@
             <scope>provided</scope>
         </dependency>
             
-        <dependency>
-            <groupId>org.jboss.aerogear</groupId>
-            <artifactId>sync-client-netty</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
 
         <dependency>
             <groupId>org.jboss.aerogear</groupId>

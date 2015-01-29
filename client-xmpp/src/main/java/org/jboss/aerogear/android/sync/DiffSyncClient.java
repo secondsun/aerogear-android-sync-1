@@ -14,7 +14,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.jboss.aerogear.sync;
+package org.jboss.aerogear.android.sync;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -36,7 +36,9 @@ import java.util.Observer;
 import java.util.UUID;
 import org.jboss.aerogear.android.core.Callback;
 import org.jboss.aerogear.android.core.Provider;
-
+import org.jboss.aerogear.sync.ClientDocument;
+import org.jboss.aerogear.sync.JsonMapper;
+import org.jboss.aerogear.sync.PatchMessage;
 
 /**
  * A Netty based WebSocket client that is able to handle differential
@@ -134,6 +136,32 @@ public final class DiffSyncClient<T> extends Observable {
         return this;
     }
 
+    public DiffSyncClientHandler connect() {
+        final DiffSyncClientHandler diffSyncClientHandler = new DiffSyncClientHandler(syncEngine);
+
+        try {
+
+            if (gcm == null) {
+                gcm = gcmProvider.get(context);
+            }
+            String regid = getRegistrationId(context);
+
+            if (regid.length() == 0) {
+                regid = gcm.register(senderId);
+                DiffSyncClient.this.setRegistrationId(context, regid);
+            }
+
+            deviceToken = regid;
+
+            return diffSyncClientHandler;
+
+        } catch (Exception ex) {
+            Log.e(TAG, ex.getMessage(), ex);
+            throw new RuntimeException(ex);
+        }
+
+    }
+
     public void addDocument(final ClientDocument<T> document) {
         syncEngine.addDocument(document);
         if (!deviceToken.isEmpty()) {
@@ -159,11 +187,11 @@ public final class DiffSyncClient<T> extends Observable {
     public void diffAndSend(final ClientDocument<T> document) {
         final PatchMessage patchMessage = syncEngine.diff(document);
         if (!deviceToken.isEmpty()) {
-            
+
             Bundle bundle = new Bundle();
-                    
+
             bundle.putString("message", JsonMapper.toJson(patchMessage));
-            
+
             try {
                 gcm.send(senderId + "@gcm.googleapis.com", messageIdProvider.get(), bundle);
             } catch (IOException ex) {
@@ -183,6 +211,10 @@ public final class DiffSyncClient<T> extends Observable {
 
     public static <T> Builder<T> forSenderID(final String senderId) {
         return new Builder<T>(senderId);
+    }
+
+    void patch(PatchMessage clientEdit) {
+        syncEngine.patch(clientEdit);
     }
 
     public static class Builder<T> {

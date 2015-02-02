@@ -57,21 +57,21 @@ public class SyncService extends IntentService {
     }
 
     @Override
-    protected void onHandleIntent(Intent intent) {
-        Log.i(SyncService.class.getName(), "onHandleIntent: " + intent);
-        Bundle extras = intent.getExtras();
+    protected void onHandleIntent(Intent serviceIntent) {
+        Log.i(SyncService.class.getName(), "onHandleIntent: " + serviceIntent);
+        Bundle extras = serviceIntent.getExtras();
         
         if (!extras.containsKey(MESSAGE_INTENT)) {
             Log.w(TAG, "Sync Service intent did not include message");
             return;
         }
-        
-        extras = ((Intent)extras.getParcelable(MESSAGE_INTENT)).getExtras();
+        Intent gcmIntent = (Intent)extras.getParcelable(MESSAGE_INTENT);
+        extras = gcmIntent.getExtras();
         
         GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(this);
         // The getMessageType() intent parameter must be the intent you received
         // in your BroadcastReceiver.
-        String gcmMessageType = gcm.getMessageType(intent);
+        String gcmMessageType = gcm.getMessageType(gcmIntent);
 
         if (!extras.isEmpty()) {  // has effect of unparcelling Bundle
             /*
@@ -133,6 +133,10 @@ public class SyncService extends IntentService {
             ComponentName myService = new ComponentName(this, this.getClass());
             Bundle data = getPackageManager().getServiceInfo(myService, PackageManager.GET_META_DATA).metaData;
             
+            if (data.getString(SENDER_ID_KEY) == null) {
+                throw new IllegalStateException(SENDER_ID_KEY + " may not be null");
+            }
+            
             syncClient = DiffSyncClient.<String>forSenderID(data.getString(SENDER_ID_KEY))
                     .context(getApplicationContext())
                     .build();
@@ -147,7 +151,7 @@ public class SyncService extends IntentService {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
-        syncClient.connect();
+        syncClient.connect();        
         return START_STICKY;
     }
 

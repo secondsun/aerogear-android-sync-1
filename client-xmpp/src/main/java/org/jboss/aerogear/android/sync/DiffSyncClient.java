@@ -163,44 +163,70 @@ public final class DiffSyncClient<T> extends Observable {
     }
 
     public void addDocument(final ClientDocument<T> document) {
-        syncEngine.addDocument(document);
-        if (!deviceToken.isEmpty()) {
-            final ObjectNode docMsg = message("add");
-            docMsg.put("msgType", "add");
-            docMsg.put("id", document.id());
-            docMsg.put("clientId", document.clientId());
-            docMsg.put("content", document.content().toString());
 
-            Bundle bundle = new Bundle();
-            bundle.putString("message", docMsg.toString());
-            try {
-                gcm.send(senderId + "@gcm.googleapis.com", messageIdProvider.get(), bundle);
-            } catch (IOException ex) {
-                Log.e(TAG, ex.getMessage(), ex);
-                throw new RuntimeException(ex);
+        AsyncTask task = new AsyncTask() {
+
+            @Override
+            protected Object doInBackground(Object... params) {
+                syncEngine.addDocument(document);
+                if (deviceToken.isEmpty()) {
+                    connect();
+                }
+
+                if (!deviceToken.isEmpty()) {
+                    final ObjectNode docMsg = message("add");
+                    docMsg.put("msgType", "add");
+                    docMsg.put("id", document.id());
+                    docMsg.put("clientId", document.clientId());
+                    docMsg.put("content", document.content().toString());
+
+                    Bundle bundle = new Bundle();
+                    bundle.putString("message", docMsg.toString());
+                    try {
+                        gcm.send(senderId + "@gcm.googleapis.com", messageIdProvider.get(), bundle);
+                    } catch (IOException ex) {
+                        Log.e(TAG, ex.getMessage(), ex);
+                        throw new RuntimeException(ex);
+                    }
+                } else {
+                    throw new RuntimeException("Not connected/nodeviceId");
+                }
+                return null;
             }
-        } else {
-            throw new RuntimeException("Not connected/nodeviceId");
-        }
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null);
+
     }
 
     public void diffAndSend(final ClientDocument<T> document) {
-        final PatchMessage patchMessage = syncEngine.diff(document);
-        if (!deviceToken.isEmpty()) {
+        AsyncTask task = new AsyncTask() {
 
-            Bundle bundle = new Bundle();
+            @Override
+            protected Object doInBackground(Object... params) {
+                syncEngine.addDocument(document);
+                if (deviceToken.isEmpty()) {
+                    connect();
+                }
 
-            bundle.putString("message", JsonMapper.toJson(patchMessage));
+                final PatchMessage patchMessage = syncEngine.diff(document);
+                if (!deviceToken.isEmpty()) {
 
-            try {
-                gcm.send(senderId + "@gcm.googleapis.com", messageIdProvider.get(), bundle);
-            } catch (IOException ex) {
-                Log.e(TAG, ex.getMessage(), ex);
-                throw new RuntimeException(ex);
+                    Bundle bundle = new Bundle();
+
+                    bundle.putString("message", JsonMapper.toJson(patchMessage));
+
+                    try {
+                        gcm.send(senderId + "@gcm.googleapis.com", messageIdProvider.get(), bundle);
+                    } catch (IOException ex) {
+                        Log.e(TAG, ex.getMessage(), ex);
+                        throw new RuntimeException(ex);
+                    }
+                } else {
+                    //TODO: store edits in a queue. 
+                }
+                return null;
             }
-        } else {
-            //TODO: store edits in a queue. 
-        }
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null);
+
     }
 
     private static ObjectNode message(final String type) {

@@ -42,7 +42,7 @@ public class DiffSyncClientHandler extends BroadcastReceiver {
         
         Intent serviceIntent = new Intent(context, SyncService.class);
         serviceIntent.putExtra(SyncService.MESSAGE_INTENT, intent);
-        context.startService(intent);
+        context.startService(serviceIntent);
         
         Bundle extras = intent.getExtras();
         if (!extras.isEmpty()) {  

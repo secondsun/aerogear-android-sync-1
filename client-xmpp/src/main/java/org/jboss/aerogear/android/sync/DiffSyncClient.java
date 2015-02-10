@@ -57,13 +57,16 @@ public final class DiffSyncClient<T> extends Observable {
     public static final String PROPERTY_REG_ID = "registration_id";
     private static final String PROPERTY_APP_VERSION = "appVersion";
     private static final String PROPERTY_ON_SERVER_EXPIRATION_TIME = "onServerExpirationTimeMs";
+    private static final String PROPERTY_CLIENT_ID = "client_id";
 
+    
     private final Context context;
     private final ClientSyncEngine<T> syncEngine;
     private GoogleCloudMessaging gcm;
     private final String senderId;
     private String deviceToken = "";
-
+    private String clientId = null;
+    
     private Provider<GoogleCloudMessaging> gcmProvider = new Provider<GoogleCloudMessaging>() {
 
         @Override
@@ -92,7 +95,7 @@ public final class DiffSyncClient<T> extends Observable {
 
     public DiffSyncClient connect(final Callback<DiffSyncClientHandler> callback) throws InterruptedException {
         final DiffSyncClientHandler diffSyncClientHandler = new DiffSyncClientHandler(syncEngine);
-
+        clientId = getClientId(context);
         new AsyncTask<Void, Void, Object>() {
 
             @Override
@@ -100,25 +103,13 @@ public final class DiffSyncClient<T> extends Observable {
 
                 try {
 
-                    if (gcm == null) {
-                        gcm = gcmProvider.get(context);
-                    }
-                    String regid = getRegistrationId(context);
-
-                    if (regid.length() == 0) {
-                        regid = gcm.register(senderId);
-                        DiffSyncClient.this.setRegistrationId(context, regid);
-                    }
-
-                    deviceToken = regid;
-
-                    return diffSyncClientHandler;
-
+                    return connect();
+                    
                 } catch (Exception ex) {
                     return ex;
                 }
 
-            }
+            };
 
             @SuppressWarnings("unchecked")
             @Override
@@ -138,6 +129,7 @@ public final class DiffSyncClient<T> extends Observable {
 
     public DiffSyncClientHandler connect() {
         final DiffSyncClientHandler diffSyncClientHandler = new DiffSyncClientHandler(syncEngine);
+        clientId = getClientId(context);
 
         try {
 
@@ -306,7 +298,26 @@ public final class DiffSyncClient<T> extends Observable {
         }
         return registrationId;
     }
+    
+    public String getClientId(Context context) {
+        final SharedPreferences prefs = getGCMPreferences(context);
+        clientId = prefs.getString(PROPERTY_CLIENT_ID, "");
+        if (clientId.length() == 0) {
+            clientId = UUID.randomUUID().toString();
+            setClientId(context, clientId);
+        }
+        
+        
+        return clientId;
+    }
 
+     private void setClientId(Context context, String clientId) {
+        final SharedPreferences prefs = getGCMPreferences(context);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(PROPERTY_CLIENT_ID, clientId);
+        editor.commit();
+    }
+    
     /**
      * @return Application's {@code SharedPreferences}.
      */

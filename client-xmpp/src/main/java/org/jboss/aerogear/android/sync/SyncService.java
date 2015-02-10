@@ -16,10 +16,9 @@ import java.util.ArrayDeque;
 import java.util.Observer;
 import java.util.Queue;
 import org.jboss.aerogear.sync.ClientDocument;
-import org.jboss.aerogear.sync.DefaultPatchMessage;
 import org.jboss.aerogear.sync.Edit;
-import org.jboss.aerogear.sync.JsonMapper;
 import org.jboss.aerogear.sync.PatchMessage;
+import org.jboss.aerogear.sync.jsonmergepatch.JsonMapper;
 import org.jboss.aerogear.sync.server.MessageType;
 
 public class SyncService extends IntentService {

@@ -103,64 +103,9 @@
             <version>4.4.2_r4</version>
             <scope>provided</scope>
         </dependency>
-            
 
-        <dependency>
-            <groupId>org.jboss.aerogear</groupId>
-            <artifactId>sync-api</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.aerogear</groupId>
-            <artifactId>sync-core</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-
-
-        <dependency>
-            <groupId>org.jboss.aerogear</groupId>
-            <artifactId>sync-client-core</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>com.google.android.gms</groupId>
-            <artifactId>play-services</artifactId>
-            <type>aar</type>
-            <version>6.1.71</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.android.support</groupId>
-                    <artifactId>support-v4</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.aerogear</groupId>
-            <artifactId>aerogear-android-core</artifactId>
-            <version>2.0.0</version>
-            <type>aar</type>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.aerogear</groupId>
-            <artifactId>aerogear-android-core</artifactId>
-            <version>2.0.0</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.aerogear</groupId>
-            <artifactId>aerogear-android-pipe</artifactId>
-            <version>2.0.0</version>
-            <type>aar</type>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.aerogear</groupId>
-            <artifactId>aerogear-android-pipe</artifactId>
-            <version>2.0.0</version>
-            <scope>provided</scope>
-        </dependency>
+ 
+   
     </dependencies>
 
 </project>

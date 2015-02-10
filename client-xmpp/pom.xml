@@ -25,10 +25,10 @@
     </parent>
 
 
-    <artifactId>sync-client-xmpp</artifactId>
+    <artifactId>sync-client-android</artifactId>
     <packaging>aar</packaging>
     <version>0.0.1-SNAPSHOT</version>
-    <name>AeroGear Data Synchronization XMPP Client</name>
+    <name>AeroGear Data Synchronization Android Client</name>
 
     <build>
         <pluginManagement>

@@ -9,32 +9,31 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
-import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.fasterxml.jackson.databind.JsonNode;
-import java.util.ArrayDeque;
 
 import java.util.Observer;
-import java.util.Queue;
 import org.jboss.aerogear.sync.ClientDocument;
-import org.jboss.aerogear.sync.Edit;
-import org.jboss.aerogear.sync.PatchMessage;
-import org.jboss.aerogear.sync.jsonmergepatch.JsonMapper;
-import org.jboss.aerogear.sync.server.MessageType;
+import org.jboss.aerogear.sync.client.ClientInMemoryDataStore;
+import org.jboss.aerogear.sync.client.ClientSyncEngine;
+import org.jboss.aerogear.sync.jsonpatch.client.JsonPatchClientSynchronizer;
+import org.jboss.aerogear.sync.jsonpatch.JsonPatchEdit;
+ 
 
 public class SyncService extends IntentService {
 
-    public final static String SENDER_ID_KEY = "senderId";
-
+    public final static String SERVER_HOST = "serverHost";
+    public final static String SERVER_PORT = "serverPort";
     private static final String TAG = SyncService.class.getSimpleName();
     public final static String MESSAGE_INTENT = "SyncClient.messageIntent";
-    
-    private DiffSyncClient<String> syncClient;
 
-    public void addDocument(ClientDocument<String> clientDocument) {
+    private DiffSyncClient<JsonNode, JsonPatchEdit>  syncClient;
+    
+
+    public void addDocument(ClientDocument<JsonNode> clientDocument) {
         syncClient.addDocument(clientDocument);
     }
 
-    public void diffAndSend(ClientDocument<String> clientDocument) {
+    public void diffAndSend(ClientDocument<JsonNode> clientDocument) {
         syncClient.diffAndSend(clientDocument);
     }
 
@@ -56,91 +55,44 @@ public class SyncService extends IntentService {
         return new SyncServiceBinder(this);
     }
 
+    /**
+     *
+     * This handles intents send from the broadcast receiver.
+     *
+     *
+     *
+     * @param serviceIntent
+     */
     @Override
     protected void onHandleIntent(Intent serviceIntent) {
-        Log.i(SyncService.class.getName(), "onHandleIntent: " + serviceIntent);
-        Bundle extras = serviceIntent.getExtras();
-        
-        if (!extras.containsKey(MESSAGE_INTENT)) {
-            Log.w(TAG, "Sync Service intent did not include message");
-            return;
-        }
-        Intent gcmIntent = (Intent)extras.getParcelable(MESSAGE_INTENT);
-        extras = gcmIntent.getExtras();
-        
-        GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(this);
-        // The getMessageType() intent parameter must be the intent you received
-        // in your BroadcastReceiver.
-        String gcmMessageType = gcm.getMessageType(gcmIntent);
 
-        if (!extras.isEmpty()) {  // has effect of unparcelling Bundle
-            /*
-             * Filter messages based on message type. Since it is likely that GCM
-             * will be extended in the future with new message types, just ignore
-             * any message types you're not interested in, or that you don't
-             * recognize.
-             */
-            if (GoogleCloudMessaging.MESSAGE_TYPE_SEND_ERROR.equals(gcmMessageType)) {
-                Log.i(TAG, "Send error: " + extras.toString());
-            } else if (GoogleCloudMessaging.MESSAGE_TYPE_DELETED.equals(gcmMessageType)) {
-                Log.i(TAG, "Deleted messages on server: "
-                        + extras.toString());
-                // If it's a regular GCM message, do some work.
-            } else if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(gcmMessageType)) {
-
-                
-                Bundle message = extras;
-                
-                String syncMessageType = message.getString("msgType", "");
-                
-                switch (MessageType.from(syncMessageType)) {
-                case ADD:
-                    //Would a server send an add?
-                    break;
-                case PATCH:
-                {
-                    JsonNode editsAsJson = JsonMapper.asJsonNode(message.getString("edits"));
-                    Queue<Edit> edits = new ArrayDeque<Edit>(editsAsJson.size());
-                    for(int i = 0; i < editsAsJson.size(); i++) {
-                        JsonNode edit = editsAsJson.get(i);
-                        edits.add(JsonMapper.fromJson(edit.toString(), Edit.class));
-                    }
-                    
-                    final PatchMessage serverPatchMessage = new DefaultPatchMessage(message.getString("id"), message.getString("clientId"), edits);
-                
-                    Log.i(TAG, "Edits: " + serverPatchMessage);
-                    patch(serverPatchMessage);
-                }
-                    break;
-                case DETACH:
-                    // detach the client from a specific document.
-                    break;
-                case UNKNOWN:
-                    //unknownMessageType(ctx, json);
-                    break;
-            }
-                
-                Log.i(TAG, "Received: " + extras.toString());
-            }
-        }
     }
 
     @Override
     public void onCreate() {
         try {
             super.onCreate();
-            
+
             ComponentName myService = new ComponentName(this, this.getClass());
             Bundle data = getPackageManager().getServiceInfo(myService, PackageManager.GET_META_DATA).metaData;
-            
-            if (data.getString(SENDER_ID_KEY) == null) {
-                throw new IllegalStateException(SENDER_ID_KEY + " may not be null");
+
+            if (data.getString(SERVER_HOST) == null) {
+                throw new IllegalStateException(SERVER_HOST + " may not be null");
             }
             
-            syncClient = DiffSyncClient.<String>forSenderID(data.getString(SENDER_ID_KEY))
-                    .context(getApplicationContext())
+            if (data.getString(SERVER_PORT) == null) {
+                throw new IllegalStateException(SERVER_PORT + " may not be null");
+            }
+
+            JsonPatchClientSynchronizer synchronizer = new JsonPatchClientSynchronizer();
+            ClientInMemoryDataStore<JsonNode, JsonPatchEdit> dataStore = new ClientInMemoryDataStore<JsonNode, JsonPatchEdit>();
+            ClientSyncEngine<JsonNode, JsonPatchEdit> clientSyncEngine = new ClientSyncEngine<JsonNode, JsonPatchEdit>(synchronizer, dataStore);
+
+            syncClient = DiffSyncClient.<JsonNode, JsonPatchEdit>forHost(data.getString(SERVER_HOST))
+                    .port(Integer.parseInt(data.getString(SERVER_PORT)))
+                    .syncEngine(clientSyncEngine)
                     .build();
-            
+
             Log.i(SyncService.class.getName(), "onCreated");
         } catch (PackageManager.NameNotFoundException ex) {
             Log.e(TAG, ex.getMessage(), ex);
@@ -151,17 +103,22 @@ public class SyncService extends IntentService {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
-        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void,Void>() {
-            
+        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+
             @Override
             protected Void doInBackground(Void... params) {
-                syncClient.connect();        
+                try {
+                    syncClient.connect();
+                } catch (InterruptedException ex) {
+                    Log.e(TAG, ex.getMessage(), ex);
+                    throw new RuntimeException(ex);
+                }
                 return null;
             }
         };
-        
+
         task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null);
-        
+
         return START_STICKY;
     }
 
@@ -171,15 +128,10 @@ public class SyncService extends IntentService {
         Log.i(SyncService.class.getName(), "onDestroy");
     }
 
-    
-    private void patch(final PatchMessage clientEdit) {
-        syncClient.patch(clientEdit);
-    }
-    
-    public String getClientId(){
+    public String getClientId() {
         return syncClient.getClientId(this);
     }
-    
+
     public static final class SyncServiceBinder extends Binder {
 
         private final SyncService service;
@@ -187,8 +139,6 @@ public class SyncService extends IntentService {
         public SyncServiceBinder(SyncService service) {
             this.service = service;
         }
-
-        DiffSyncClient<String> a;
 
         public SyncService getService() {
             return service;

@@ -18,7 +18,6 @@ package org.jboss.aerogear.android.sync;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -44,7 +43,6 @@ import org.jboss.aerogear.sync.diffmatchpatch.client.DiffMatchPatchClientSynchro
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.sql.Timestamp;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.UUID;

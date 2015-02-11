@@ -56,6 +56,9 @@ public class SyncService extends IntentService {
 
     @Override
     public IBinder onBind(Intent intent) {
+        if (!syncClient.isConnected()) {
+            connectAsync();
+        }
         return new SyncServiceBinder(this);
     }
 
@@ -107,6 +110,31 @@ public class SyncService extends IntentService {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
+        
+        connectAsync();
+        
+        return START_STICKY;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.i(SyncService.class.getName(), "onDestroy");
+    }
+
+    public String getClientId() {
+        return syncClient.getClientId(this);
+    }
+
+    private void addConnectionListener(SyncServerConnectionListener observer) {
+        this.connectionListeners.add(observer);
+    }
+
+    private void removeConnectionListener(SyncServerConnectionListener observer) {
+        this.connectionListeners.remove(observer);
+    }
+
+    private void connectAsync() {
         AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
 
             @Override
@@ -131,26 +159,6 @@ public class SyncService extends IntentService {
         };
 
         task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null);
-
-        return START_STICKY;
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Log.i(SyncService.class.getName(), "onDestroy");
-    }
-
-    public String getClientId() {
-        return syncClient.getClientId(this);
-    }
-
-    private void addConnectionListener(SyncServerConnectionListener observer) {
-        this.connectionListeners.add(observer);
-    }
-
-    private void removeConnectionListener(SyncServerConnectionListener observer) {
-        this.connectionListeners.remove(observer);
     }
 
     public static final class SyncServiceBinder extends Binder {

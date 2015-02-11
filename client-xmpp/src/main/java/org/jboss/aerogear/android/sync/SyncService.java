@@ -10,8 +10,9 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 import com.fasterxml.jackson.databind.JsonNode;
+import java.util.ArrayList;
+import java.util.List;
 
-import java.util.Observer;
 import org.jboss.aerogear.sync.ClientDocument;
 import org.jboss.aerogear.sync.client.ClientInMemoryDataStore;
 import org.jboss.aerogear.sync.client.ClientSyncEngine;
@@ -26,6 +27,7 @@ public class SyncService extends IntentService {
     private static final String TAG = SyncService.class.getSimpleName();
     public final static String MESSAGE_INTENT = "SyncClient.messageIntent";
 
+    private final List<SyncServerConnectionListener> connectionListeners = new ArrayList<SyncServerConnectionListener>();
     private DiffSyncClient<JsonNode, JsonPatchEdit>  syncClient;
     
 
@@ -37,12 +39,14 @@ public class SyncService extends IntentService {
         syncClient.diffAndSend(clientDocument);
     }
 
-    public void subscribe(Observer observer) {
+    public void subscribe(SyncServerConnectionListener observer) {
         syncClient.addObserver(observer);
+        addConnectionListener(observer);
     }
 
-    public void unsubscribe(Observer observer) {
+    public void unsubscribe(SyncServerConnectionListener observer) {
         syncClient.deleteObserver(observer);
+        removeConnectionListener(observer);
     }
 
     public SyncService() {
@@ -80,7 +84,7 @@ public class SyncService extends IntentService {
                 throw new IllegalStateException(SERVER_HOST + " may not be null");
             }
             
-            if (data.getString(SERVER_PORT) == null) {
+            if (data.getInt(SERVER_PORT, -1) == -1) {
                 throw new IllegalStateException(SERVER_PORT + " may not be null");
             }
 
@@ -89,7 +93,7 @@ public class SyncService extends IntentService {
             ClientSyncEngine<JsonNode, JsonPatchEdit> clientSyncEngine = new ClientSyncEngine<JsonNode, JsonPatchEdit>(synchronizer, dataStore);
 
             syncClient = DiffSyncClient.<JsonNode, JsonPatchEdit>forHost(data.getString(SERVER_HOST))
-                    .port(Integer.parseInt(data.getString(SERVER_PORT)))
+                    .port(data.getInt(SERVER_PORT))
                     .syncEngine(clientSyncEngine)
                     .build();
 
@@ -115,6 +119,15 @@ public class SyncService extends IntentService {
                 }
                 return null;
             }
+
+            @Override
+            protected void onPostExecute(Void result) {
+                super.onPostExecute(result); 
+                for (SyncServerConnectionListener listener : connectionListeners) {
+                    listener.onConnected();
+                }
+            }
+            
         };
 
         task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null);
@@ -130,6 +143,14 @@ public class SyncService extends IntentService {
 
     public String getClientId() {
         return syncClient.getClientId(this);
+    }
+
+    private void addConnectionListener(SyncServerConnectionListener observer) {
+        this.connectionListeners.add(observer);
+    }
+
+    private void removeConnectionListener(SyncServerConnectionListener observer) {
+        this.connectionListeners.remove(observer);
     }
 
     public static final class SyncServiceBinder extends Binder {

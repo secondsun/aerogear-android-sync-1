@@ -235,5 +235,12 @@ public final class DiffSyncClient<T, S extends Edit<? extends Diff>> extends Obs
         editor.putString(PROPERTY_CLIENT_ID, clientId);
         editor.commit();
     }
-    
+ 
+    /**
+     * Checks if the service is connected.
+     * @return true if channel is not null and channel.isActive() returns true;
+     */
+    public boolean isConnected() {
+        return channel != null && channel.isActive();
+    }
 }

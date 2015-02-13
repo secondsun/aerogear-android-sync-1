@@ -39,13 +39,13 @@ import org.slf4j.LoggerFactory;
  * @param <T> The type of the Document that this handler handles
  * @param <S> The type of {@link Edit}s that this handler handles
  */
-public class DiffSyncClientHandler<T, S extends Edit<? extends Diff>> extends SimpleChannelInboundHandler<WebSocketFrame> {
+public class AndroidSyncClientHandler<T, S extends Edit<? extends Diff>> extends SimpleChannelInboundHandler<WebSocketFrame> {
 
-    private static final Logger logger = LoggerFactory.getLogger(DiffSyncClientHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(AndroidSyncClientHandler.class);
 
     private final ClientSyncEngine<T, S> syncEngine;
 
-    public DiffSyncClientHandler(final ClientSyncEngine<T, S> syncEngine) {
+    public AndroidSyncClientHandler(final ClientSyncEngine<T, S> syncEngine) {
         this.syncEngine = syncEngine;
     }
 

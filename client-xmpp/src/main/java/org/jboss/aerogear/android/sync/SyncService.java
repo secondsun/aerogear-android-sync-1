@@ -28,7 +28,7 @@ public class SyncService extends IntentService {
     public final static String MESSAGE_INTENT = "SyncClient.messageIntent";
 
     private final List<SyncServerConnectionListener> connectionListeners = new ArrayList<SyncServerConnectionListener>();
-    private DiffSyncClient<JsonNode, JsonPatchEdit>  syncClient;
+    private AndroidSyncClient<JsonNode, JsonPatchEdit>  syncClient;
     
 
     public void addDocument(ClientDocument<JsonNode> clientDocument) {
@@ -95,7 +95,7 @@ public class SyncService extends IntentService {
             ClientInMemoryDataStore<JsonNode, JsonPatchEdit> dataStore = new ClientInMemoryDataStore<JsonNode, JsonPatchEdit>();
             ClientSyncEngine<JsonNode, JsonPatchEdit> clientSyncEngine = new ClientSyncEngine<JsonNode, JsonPatchEdit>(synchronizer, dataStore);
 
-            syncClient = DiffSyncClient.<JsonNode, JsonPatchEdit>forHost(data.getString(SERVER_HOST))
+            syncClient = AndroidSyncClient.<JsonNode, JsonPatchEdit>forHost(data.getString(SERVER_HOST))
                     .port(data.getInt(SERVER_PORT))
                     .syncEngine(clientSyncEngine)
                     .build();

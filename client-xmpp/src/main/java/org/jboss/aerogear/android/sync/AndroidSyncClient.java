@@ -62,6 +62,24 @@ public final class AndroidSyncClient<T, S extends Edit<? extends Diff>> extends 
         return clientId;
     }
 
+    @Override
+    public synchronized void addObserver(Observer o) {
+        super.addObserver(o);
+        syncEngine.addObserver(o);
+    }
+
+    @Override
+    public synchronized void deleteObserver(Observer o) {
+        super.deleteObserver(o); 
+        syncEngine.deleteObserver(o);
+    }
+
+    @Override
+    public synchronized void deleteObservers() {
+        super.deleteObservers(); 
+        syncEngine.deleteObservers();
+    }
+    
     private SharedPreferences getSharedProperties(Context context) {
         return context.getSharedPreferences(AndroidSyncClient.class.getSimpleName(), Context.MODE_PRIVATE);
     }

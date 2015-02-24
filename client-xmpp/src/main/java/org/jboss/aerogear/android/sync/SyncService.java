@@ -12,10 +12,13 @@ import android.util.Log;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.jboss.aerogear.sync.ClientDocument;
 import org.jboss.aerogear.sync.client.ClientInMemoryDataStore;
 import org.jboss.aerogear.sync.client.ClientSyncEngine;
+import org.jboss.aerogear.sync.client.SyncClient;
+import org.jboss.aerogear.sync.client.netty.NettySyncClient;
 import org.jboss.aerogear.sync.jsonpatch.client.JsonPatchClientSynchronizer;
 import org.jboss.aerogear.sync.jsonpatch.JsonPatchEdit;
  
@@ -24,11 +27,13 @@ public class SyncService extends IntentService {
 
     public final static String SERVER_HOST = "serverHost";
     public final static String SERVER_PORT = "serverPort";
+    public final static String SERVER_PATH = "serverPath";
     private static final String TAG = SyncService.class.getSimpleName();
     public final static String MESSAGE_INTENT = "SyncClient.messageIntent";
 
     private final List<SyncServerConnectionListener> connectionListeners = new ArrayList<SyncServerConnectionListener>();
-    private AndroidSyncClient<JsonNode, JsonPatchEdit>  syncClient;
+    private SyncClient<JsonNode, JsonPatchEdit>  syncClient;
+    private final String clientId = UUID.randomUUID().toString();
     
 
     public void addDocument(ClientDocument<JsonNode> clientDocument) {
@@ -87,16 +92,22 @@ public class SyncService extends IntentService {
                 throw new IllegalStateException(SERVER_HOST + " may not be null");
             }
             
+            if (data.getString(SERVER_PATH) == null) {
+                throw new IllegalStateException(SERVER_PATH + " may not be null");
+            }
+            
             if (data.getInt(SERVER_PORT, -1) == -1) {
                 throw new IllegalStateException(SERVER_PORT + " may not be null");
             }
+            
 
             JsonPatchClientSynchronizer synchronizer = new JsonPatchClientSynchronizer();
             ClientInMemoryDataStore<JsonNode, JsonPatchEdit> dataStore = new ClientInMemoryDataStore<JsonNode, JsonPatchEdit>();
             ClientSyncEngine<JsonNode, JsonPatchEdit> clientSyncEngine = new ClientSyncEngine<JsonNode, JsonPatchEdit>(synchronizer, dataStore);
 
-            syncClient = AndroidSyncClient.<JsonNode, JsonPatchEdit>forHost(data.getString(SERVER_HOST))
+            syncClient = NettySyncClient.<JsonNode, JsonPatchEdit>forHost(data.getString(SERVER_HOST))
                     .port(data.getInt(SERVER_PORT))
+                    .path(data.getString(SERVER_PATH))
                     .syncEngine(clientSyncEngine)
                     .build();
 
@@ -123,7 +134,7 @@ public class SyncService extends IntentService {
     }
 
     public String getClientId() {
-        return syncClient.getClientId(this);
+        return clientId;
     }
 
     private void addConnectionListener(SyncServerConnectionListener observer) {
@@ -141,7 +152,7 @@ public class SyncService extends IntentService {
             protected Void doInBackground(Void... params) {
                 try {
                     syncClient.connect();
-                } catch (InterruptedException ex) {
+                } catch (Exception ex) {
                     Log.e(TAG, ex.getMessage(), ex);
                     throw new RuntimeException(ex);
                 }
@@ -158,7 +169,7 @@ public class SyncService extends IntentService {
             
         };
 
-        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null);
+        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void) null);
     }
 
     public static final class SyncServiceBinder extends Binder {

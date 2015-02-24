@@ -15,9 +15,9 @@
  */
 package org.jboss.aerogear.android.sync;
 
-import java.util.Observer;
+import org.jboss.aerogear.sync.client.PatchListener;
 
-public interface SyncServerConnectionListener extends Observer {
+public interface SyncServerConnectionListener<T> extends PatchListener<T> {
 
     /**
      * Called when the sync service is connected to the sync server.

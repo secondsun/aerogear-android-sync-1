@@ -17,6 +17,7 @@ import java.util.UUID;
 import org.jboss.aerogear.sync.ClientDocument;
 import org.jboss.aerogear.sync.client.ClientInMemoryDataStore;
 import org.jboss.aerogear.sync.client.ClientSyncEngine;
+import org.jboss.aerogear.sync.client.DefaultPatchObservable;
 import org.jboss.aerogear.sync.client.SyncClient;
 import org.jboss.aerogear.sync.client.netty.NettySyncClient;
 import org.jboss.aerogear.sync.jsonpatch.client.JsonPatchClientSynchronizer;
@@ -44,13 +45,13 @@ public class SyncService extends IntentService {
         syncClient.diffAndSend(clientDocument);
     }
 
-    public void subscribe(SyncServerConnectionListener observer) {
-        syncClient.addObserver(observer);
+    public void subscribe(SyncServerConnectionListener<JsonNode> observer) {
+        syncClient.addPatchListener(observer);
         addConnectionListener(observer);
     }
 
-    public void unsubscribe(SyncServerConnectionListener observer) {
-        syncClient.deleteObserver(observer);
+    public void unsubscribe(SyncServerConnectionListener<JsonNode> observer) {
+        syncClient.deletePatchListener(observer);
         removeConnectionListener(observer);
     }
 
@@ -103,7 +104,7 @@ public class SyncService extends IntentService {
 
             JsonPatchClientSynchronizer synchronizer = new JsonPatchClientSynchronizer();
             ClientInMemoryDataStore<JsonNode, JsonPatchEdit> dataStore = new ClientInMemoryDataStore<JsonNode, JsonPatchEdit>();
-            ClientSyncEngine<JsonNode, JsonPatchEdit> clientSyncEngine = new ClientSyncEngine<JsonNode, JsonPatchEdit>(synchronizer, dataStore);
+            ClientSyncEngine<JsonNode, JsonPatchEdit> clientSyncEngine = new ClientSyncEngine<JsonNode, JsonPatchEdit>(synchronizer, dataStore, new DefaultPatchObservable<JsonNode>());
 
             syncClient = NettySyncClient.<JsonNode, JsonPatchEdit>forHost(data.getString(SERVER_HOST))
                     .port(data.getInt(SERVER_PORT))

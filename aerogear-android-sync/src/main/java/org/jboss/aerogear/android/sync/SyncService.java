@@ -72,9 +72,7 @@ public class SyncService extends IntentService {
      *
      * This handles intents send from the broadcast receiver.
      *
-     *
-     *
-     * @param serviceIntent
+     * @param serviceIntent The Intent from the broadcast receiver
      */
     @Override
     protected void onHandleIntent(Intent serviceIntent) {

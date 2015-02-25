@@ -24,5 +24,5 @@ public interface SyncServerConnectionListener<T> extends PatchListener<T> {
      * 
      * This will be called on the main thread.
      */
-    void onConnected();    
+    void onConnected();
 }

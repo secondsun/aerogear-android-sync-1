@@ -15,11 +15,11 @@
   limitations under the License.
 -->
 <manifest
-    package="org.jboss.aerogear.sync"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:versionCode="1"
-    android:versionName="1.0">
+        package="org.jboss.aerogear.android.sync"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:versionCode="1"
+        android:versionName="1.0">
 
-    <uses-sdk android:minSdkVersion="15" />
+    <uses-sdk android:minSdkVersion="15"/>
 
 </manifest>

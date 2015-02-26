@@ -18,6 +18,11 @@ package org.jboss.aerogear.android.sync;
 
 import org.jboss.aerogear.sync.client.PatchListener;
 
+/**
+ * A listener for patch events as well as conneciton events.
+ * 
+ * @param <T> The content type of {@link org.jboss.aerogear.sync.ClientDocument} that this SyncServerConnectionListener listens to.
+ */
 public interface SyncServerConnectionListener<T> extends PatchListener<T> {
 
     /**

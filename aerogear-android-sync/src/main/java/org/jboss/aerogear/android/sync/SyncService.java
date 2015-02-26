@@ -1,18 +1,18 @@
 /**
- * JBoss, Home of Professional Open Source
- * Copyright Red Hat, Inc., and individual contributors.
+ * JBoss, Home of Professional Open Source Copyright Red Hat, Inc., and
+ * individual contributors.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package org.jboss.aerogear.android.sync;
 
@@ -39,6 +39,27 @@ import org.jboss.aerogear.sync.client.netty.NettySyncClient;
 import org.jboss.aerogear.sync.jsonpatch.client.JsonPatchClientSynchronizer;
 import org.jboss.aerogear.sync.jsonpatch.JsonPatchEdit;
 
+/**
+ * Activities can bind to this service and use it to send documents to a sync
+ * server instance. Additionally they can subscribe to update events from this
+ * service.
+ *
+ * To activate this service in your AndroidManifest.xml include the following:
+ * <pre>
+ *         &lt;service android:name="org.jboss.aerogear.android.sync.SyncService"&gt;
+ *           &lt;meta-data
+ *               android:name="serverPort"
+ *               android:value="8080" /&gt;
+ *           &lt;meta-data
+ *               android:name="serverHost"
+ *               android:value="10.0.2.2" /&gt;
+ *           &lt;meta-data
+ *               android:name="serverPath"
+ *               android:value="/websocket-wildfly-0.1-SNAPSHOT/hello" /&gt;
+ *       &lt;/service&gt;
+ * </pre>
+ *
+ */
 public class SyncService extends IntentService {
 
     public final static String SERVER_HOST = "serverHost";
@@ -51,19 +72,43 @@ public class SyncService extends IntentService {
     private SyncClient<JsonNode, JsonPatchEdit> syncClient;
     private final String clientId = UUID.randomUUID().toString();
 
+    /**
+     * Adds a ClientDocument to this service's SyncClient.
+     *
+     * @param clientDocument the document to add to the SyncClient
+     */
     public void addDocument(ClientDocument<JsonNode> clientDocument) {
         syncClient.addDocument(clientDocument);
     }
 
+    /**
+     * Sends a ClientDocument to the service's SyncClient to prepare a diff and
+     * send to the server.
+     *
+     * @param clientDocument the document to send a diff to the sync server
+     */
     public void diffAndSend(ClientDocument<JsonNode> clientDocument) {
         syncClient.diffAndSend(clientDocument);
     }
 
+    /**
+     * Registers an {@link SyncServerConnectionListener} to receive events from
+     * the sync server. The observer will also receive connection events from
+     * the Service.
+     *
+     * @param observer the observer to subscribe.
+     */
     public void subscribe(SyncServerConnectionListener<JsonNode> observer) {
         syncClient.addPatchListener(observer);
         addConnectionListener(observer);
     }
 
+    /**
+     * Removes an {@link SyncServerConnectionListener} from the list of objects
+     * receiving sync and connection events..
+     * 
+     * @param observer the observer to remove.
+     */
     public void unsubscribe(SyncServerConnectionListener<JsonNode> observer) {
         syncClient.deletePatchListener(observer);
         removeConnectionListener(observer);
@@ -83,9 +128,9 @@ public class SyncService extends IntentService {
     }
 
     /**
-     * 
+     *
      * This handles intents send from the broadcast receiver.
-     * 
+     *
      * @param serviceIntent The Intent from the broadcast receiver
      */
     @Override
@@ -118,7 +163,7 @@ public class SyncService extends IntentService {
             ClientSyncEngine<JsonNode, JsonPatchEdit> clientSyncEngine = new ClientSyncEngine<JsonNode, JsonPatchEdit>(synchronizer, dataStore,
                     new DefaultPatchObservable<JsonNode>());
 
-            syncClient = NettySyncClient.<JsonNode, JsonPatchEdit> forHost(data.getString(SERVER_HOST))
+            syncClient = NettySyncClient.<JsonNode, JsonPatchEdit>forHost(data.getString(SERVER_HOST))
                     .port(data.getInt(SERVER_PORT))
                     .path(data.getString(SERVER_PATH))
                     .syncEngine(clientSyncEngine)
@@ -146,6 +191,11 @@ public class SyncService extends IntentService {
         Log.i(SyncService.class.getName(), "onDestroy");
     }
 
+    /**
+     * The clientId identifies a connection to the remote server.
+     * 
+     * @return the clientId 
+     */
     public String getClientId() {
         return clientId;
     }
@@ -185,14 +235,27 @@ public class SyncService extends IntentService {
         task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void) null);
     }
 
+    /**
+     * This binder is used to retrieve a reference to the SyncService.
+     */ 
     public static final class SyncServiceBinder extends Binder {
 
         private final SyncService service;
 
-        public SyncServiceBinder(SyncService service) {
+        /**
+         * Constructor 
+         * 
+         * @param service the reference to the service.
+         */
+        private SyncServiceBinder(SyncService service) {
             this.service = service;
         }
 
+        /**
+         * Get the reference to the syncService
+         * 
+         * @return the syncService
+         */
         public SyncService getService() {
             return service;
         }

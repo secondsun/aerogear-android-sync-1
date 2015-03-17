@@ -20,7 +20,7 @@
 
     <groupId>org.jboss.aerogear</groupId>
     <artifactId>aerogear-android-sync</artifactId>
-    <version>2.1.0</version>
+    <version>2.2.0-SNAPSHOT</version>
     <packaging>aar</packaging>
     <name>AeroGear Data Synchronization Android Client Library</name>
 
@@ -34,7 +34,7 @@
         <connection>scm:git:git@github.com:aerogear/aerogear-android-sync.git</connection>
         <developerConnection>scm:git:git@github.com:aerogear/aerogear-android-sync.git</developerConnection>
         <url>git@github.com:aerogear/aerogear-android-sync.git</url>
-        <tag>2.1.0</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <properties>
@@ -71,21 +71,21 @@
         <dependency>
             <groupId>org.jboss.aerogear</groupId>
             <artifactId>sync-json-patch-core</artifactId>
-            <version>1.0.0-alpha.1</version>
+            <version>0.0.1-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
 
         <dependency>
             <groupId>org.jboss.aerogear</groupId>
             <artifactId>sync-json-patch-client</artifactId>
-            <version>1.0.0-alpha.1</version>
+            <version>0.0.1-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
 
         <dependency>
             <groupId>org.jboss.aerogear</groupId>
             <artifactId>sync-client-netty</artifactId>
-            <version>1.0.0-alpha.1</version>
+            <version>0.0.1-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
 

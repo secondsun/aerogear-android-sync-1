@@ -71,21 +71,21 @@
         <dependency>
             <groupId>org.jboss.aerogear</groupId>
             <artifactId>sync-json-patch-core</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${aerogear.android.sync.version}</version>
             <type>jar</type>
         </dependency>
 
         <dependency>
             <groupId>org.jboss.aerogear</groupId>
             <artifactId>sync-json-patch-client</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${aerogear.android.sync.version}</version>
             <type>jar</type>
         </dependency>
 
         <dependency>
             <groupId>org.jboss.aerogear</groupId>
             <artifactId>sync-client-netty</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${aerogear.android.sync.version}</version>
             <type>jar</type>
         </dependency>
 

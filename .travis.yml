@@ -40,4 +40,3 @@ before_install:
   - mvn install -DskipTests -fn  --quiet 
   - cd -
 
-script: cd aerogear-android-sync; mvn install

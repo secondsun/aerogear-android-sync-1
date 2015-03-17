@@ -44,7 +44,7 @@
 
         <!-- Project depencies versions -->
         <android.version>[5.0_r1,)</android.version>
-        <aerogear.android.sync.version>0.0.1-SNAPSHOT</aerogear.android.sync.version>
+        <aerogear.android.sync.version>1.0.0-alpha.2-SNAPSHOT</aerogear.android.sync.version>
 
         <!-- Plugins versions -->
         <maven.javadoc.plugin.version>2.9.1</maven.javadoc.plugin.version>

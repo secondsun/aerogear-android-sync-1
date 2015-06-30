@@ -20,7 +20,7 @@
 
     <groupId>org.jboss.aerogear</groupId>
     <artifactId>aerogear-android-sync</artifactId>
-    <version>2.2.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
     <packaging>aar</packaging>
     <name>AeroGear Data Synchronization Android Client Library</name>
 

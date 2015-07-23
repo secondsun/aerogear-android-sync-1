@@ -53,7 +53,7 @@
         <maven.compiler.plugin.version>2.3.2</maven.compiler.plugin.version>
 
         <!-- Android configs -->
-        <android.platform>19</android.platform>
+        <android.platform>22</android.platform>
         <android.debug>false</android.debug>
         <proguard.skip>true</proguard.skip>
     </properties>

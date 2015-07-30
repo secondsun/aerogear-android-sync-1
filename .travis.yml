@@ -1,20 +1,22 @@
+sudo: false # See: docs.travis-ci.com/user/migrating-from-legacy
+
 language: android
+
+notifications:
+  irc: "irc.freenode.org#aerogear"
 
 jdk:
   - oraclejdk8
   - oraclejdk7
 
-notifications:
-  irc: "irc.freenode.org#aerogear"
-
 android:
   components:
-    - build-tools-21.1.1
-    - android-21
+    - build-tools-22.0.1
+    - android-22
 
 env:
     matrix:
-      - ANDROID_TARGET=android-21
+      - ANDROID_TARGET=android-22
 
 before_install:
 
@@ -36,6 +38,6 @@ before_install:
 
   - git clone https://github.com/aerogear/aerogear-sync-server.git
   - cd $PWD/aerogear-sync-server
-  - mvn install -DskipTests -fn  --quiet 
+  - mvn install -DskipTests -fn --quiet 
   - cd -
 

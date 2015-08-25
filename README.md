@@ -34,7 +34,7 @@ Add to your application's `build.gradle` file
 
 ```
 dependencies {
-  compile 'org.jboss.aerogear:aerogear-android-sync:0.0.1-SNAPSHOT'
+  compile 'org.jboss.aerogear:aerogear-android-sync:2.1.0'
 }
 ```
 
@@ -47,7 +47,7 @@ Include the following dependencies in your project's `pom.xml`
 <dependency>
   <groupId>org.jboss.aerogear</groupId>
   <artifactId>aerogear-android-sync</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>2.1.0</version>
   <scope>provided</scope>
   <type>jar</type>
 </dependency>
@@ -55,7 +55,7 @@ Include the following dependencies in your project's `pom.xml`
 <dependency>
   <groupId>org.jboss.aerogear</groupId>
   <artifactId>aerogear-android-sync</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>2.1.0</version>
   <type>aar</type>
 </dependency>
 ```

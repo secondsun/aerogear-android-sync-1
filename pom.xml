@@ -27,7 +27,7 @@
     <parent>
         <groupId>org.jboss.aerogear</groupId>
         <artifactId>aerogear-parent</artifactId>
-        <version>0.2.11</version>
+        <version>0.2.20</version>
     </parent>
 
     <scm>
@@ -47,13 +47,13 @@
         <aerogear.android.sync.version>1.0.0-alpha.2-SNAPSHOT</aerogear.android.sync.version>
 
         <!-- Plugins versions -->
-        <maven.javadoc.plugin.version>2.9.1</maven.javadoc.plugin.version>
+        <maven.javadoc.plugin.version>2.10.3</maven.javadoc.plugin.version>
         <maven.android.plugin.version>4.2.0</maven.android.plugin.version>
-        <builder.helper.plugin.version>1.7</builder.helper.plugin.version>
+        <builder.helper.plugin.version>1.10</builder.helper.plugin.version>
         <maven.compiler.plugin.version>2.3.2</maven.compiler.plugin.version>
 
         <!-- Android configs -->
-        <android.platform>22</android.platform>
+        <android.platform>23</android.platform>
         <android.debug>false</android.debug>
         <proguard.skip>true</proguard.skip>
     </properties>
